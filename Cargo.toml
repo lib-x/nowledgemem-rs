@@ -1,0 +1,39 @@
+[package]
+name = "nowledgemem"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Rust client library for the Nowledge Mem REST API"
+license = "MIT"
+repository = "https://github.com/lib-x/nowledgemem-rs"
+readme = "README.md"
+keywords = ["nowledge", "memory", "sdk", "openapi"]
+categories = ["api-bindings"]
+
+[lib]
+doctest = false
+
+[dependencies]
+bytes = "1"
+chrono = { version = "0.4", default-features = false, features = ["serde"] }
+progenitor-client = "0.14"
+regress = "0.11"
+reqwest = { version = "0.13", default-features = false, features = ["json", "multipart", "query", "rustls", "stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_urlencoded = "0.7"
+thiserror = "2"
+url = "2"
+uuid = { version = "1", features = ["serde", "v4"] }
+
+[build-dependencies]
+openapiv3 = "2"
+prettyplease = "0.2"
+progenitor = "0.14"
+quote = "1"
+serde_json = "1"
+syn = "2"
+
+[dev-dependencies]
+httpmock = "0.8"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
