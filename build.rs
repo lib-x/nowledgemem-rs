@@ -48,6 +48,7 @@ fn normalize_openapi_31_to_30(spec: &mut Value) {
         root.remove("jsonSchemaDialect");
     }
     normalize_const_keywords(spec);
+    normalize_nullable_type_arrays(spec);
     normalize_nullable_any_of(spec);
 }
 
@@ -198,6 +199,37 @@ fn normalize_const_keywords(value: &mut Value) {
                     .entry("enum")
                     .or_insert_with(|| Value::Array(vec![const_value]));
             }
+        }
+        _ => {}
+    }
+}
+
+fn normalize_nullable_type_arrays(value: &mut Value) {
+    match value {
+        Value::Array(values) => {
+            for value in values {
+                normalize_nullable_type_arrays(value);
+            }
+        }
+        Value::Object(object) => {
+            for value in object.values_mut() {
+                normalize_nullable_type_arrays(value);
+            }
+
+            let Some(types) = object.get("type").and_then(Value::as_array) else {
+                return;
+            };
+            let non_null_types = types
+                .iter()
+                .filter(|value| value.as_str() != Some("null"))
+                .cloned()
+                .collect::<Vec<_>>();
+            if non_null_types.len() != 1 || non_null_types.len() == types.len() {
+                return;
+            }
+
+            object.insert("type".to_string(), non_null_types[0].clone());
+            object.insert("nullable".to_string(), Value::Bool(true));
         }
         _ => {}
     }

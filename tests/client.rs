@@ -184,6 +184,51 @@ async fn data_import_upload_sends_multipart_form() {
 }
 
 #[tokio::test]
+async fn generated_export_status_reads_background_job() {
+    let server = MockServer::start_async().await;
+    let mock = server
+        .mock_async(|when, then| {
+            when.method(GET)
+                .path("/data/export/status/job1")
+                .header("authorization", "Bearer nmem_export");
+            then.status(200)
+                .header("content-type", "application/json")
+                .json_body(json!({
+                    "job_id": "job1",
+                    "kind": "export",
+                    "status": "running",
+                    "result": null,
+                    "started_at": "2026-07-07T00:00:00Z",
+                    "completed_at": null,
+                    "error": null
+                }));
+        })
+        .await;
+
+    let client = Client::builder()
+        .base_url(server.base_url())
+        .api_key("nmem_export")
+        .build()
+        .unwrap();
+
+    let response = client
+        .api()
+        .get_export_status_data_export_status_job_id_get()
+        .job_id("job1")
+        .send()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(response.job_id, "job1");
+    assert_eq!(response.kind.as_deref(), Some("export"));
+    assert_eq!(response.status, "running");
+    assert!(response.result.is_none());
+    assert!(response.completed_at.is_none());
+    mock.assert_async().await;
+}
+
+#[tokio::test]
 async fn source_folder_upload_validates_and_sends_files() {
     let server = MockServer::start_async().await;
     let client = Client::builder()

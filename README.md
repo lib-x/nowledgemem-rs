@@ -125,7 +125,7 @@ The original OpenAPI document is stored at
 source of truth and applies minimal generation-only normalization for:
 
 - OpenAPI 3.1 to 3.0 compatibility.
-- `anyOf + null` nullable schemas.
+- `anyOf + null` and `type: [..., "null"]` nullable schemas.
 - inline enum title disambiguation.
 - `multipart/form-data` operations, which are implemented by hand.
 - operations with multiple structured error response bodies.
